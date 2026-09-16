@@ -4,7 +4,7 @@ import { type Logger } from 'pino';
 import { CompiledSplitsContractContract, type SplitsPrivateState } from '../../contract/src/index.js';
 export { type SplitsPrivateState };
 import { deployContract, findDeployedContract, type FoundContract } from '@midnight-ntwrk/midnight-js-contracts';
-import { combineLatest, map, tap, from, type Observable } from 'rxjs';
+import { combineLatest, map, tap, BehaviorSubject, type Observable } from 'rxjs';
 import { toHex } from '@midnight-ntwrk/midnight-js-utils';
 import { type MidnightProviders } from '@midnight-ntwrk/midnight-js-types';
 import * as utils from './utils/index.js';
@@ -27,7 +27,7 @@ export interface SplitsDerivedState {
   readonly pending_payment_to: bigint;
   readonly pending_payment_amount: bigint;
   readonly pending_payment_status: bigint;
-  
+
   // Local private user contexts
   readonly activeIdx: number;
   readonly balances: { [idx: number]: bigint };
@@ -51,14 +51,25 @@ export function createSplitsPrivateState(secretKey: Uint8Array): SplitsPrivateSt
 export class SplitsAPI {
   readonly deployedContractAddress: ContractAddress;
   readonly state$: Observable<SplitsDerivedState>;
+  private readonly privateState$: BehaviorSubject<SplitsPrivateState>;
 
   constructor(
     public readonly deployedContract: DeployedSplitsContract,
     private readonly providers: SplitsProviders,
     private readonly logger?: Logger,
+    initialPrivateState?: SplitsPrivateState,
   ) {
     this.deployedContractAddress = deployedContract.deployTxData.public.contractAddress;
     providers.privateStateProvider.setContractAddress(this.deployedContractAddress);
+
+    const basePrivateState = initialPrivateState ?? createSplitsPrivateState(utils.randomBytes(32));
+    this.privateState$ = new BehaviorSubject<SplitsPrivateState>(basePrivateState);
+
+    void providers.privateStateProvider.get(splitsPrivateStateKey).then((saved) => {
+      if (saved) {
+        this.privateState$.next(saved as SplitsPrivateState);
+      }
+    });
 
     this.state$ = combineLatest(
       [
@@ -75,11 +86,9 @@ export class SplitsAPI {
             });
           }),
         ),
-        from(providers.privateStateProvider.get(splitsPrivateStateKey) as Promise<SplitsPrivateState | undefined>),
+        this.privateState$,
       ],
-      (ledgerState, privateState) => {
-        const activePrivateState = privateState ?? createSplitsPrivateState(utils.randomBytes(32));
-        
+      (ledgerState, activePrivateState) => {
         const saltsHex: { [idx: number]: string } = {};
         for (let i = 0; i < 4; i++) {
           saltsHex[i] = toHex(activePrivateState.salts[i] || new Uint8Array(32));
@@ -114,11 +123,13 @@ export class SplitsAPI {
       initialMembers[3] || new Uint8Array(32),
     ];
 
+    const initialPrivateState = createSplitsPrivateState(utils.randomBytes(32));
+
     const deployedSplitsContract = await deployContract<Splits.Contract<SplitsPrivateState>>(providers, {
       compiledContract: CompiledSplitsContractContract,
       privateStateId: splitsPrivateStateKey,
-      initialPrivateState: createSplitsPrivateState(utils.randomBytes(32)),
-      args: [paddedMembers as any],
+      initialPrivateState,
+      args: [paddedMembers],
     });
 
     logger?.trace({
@@ -127,7 +138,7 @@ export class SplitsAPI {
       },
     });
 
-    return new SplitsAPI(deployedSplitsContract, providers, logger);
+    return new SplitsAPI(deployedSplitsContract, providers, logger, initialPrivateState);
   }
 
   static async join(providers: SplitsProviders, contractAddress: ContractAddress, logger?: Logger): Promise<SplitsAPI> {
@@ -137,12 +148,45 @@ export class SplitsAPI {
       },
     });
 
-    const deployedSplitsContract = await findDeployedContract<Splits.Contract<SplitsPrivateState>>(providers, {
-      contractAddress,
+    // Validate format (must be 64-character hexadecimal string, 32 bytes)
+    const cleanedAddress = contractAddress.replace(/^0x/i, '').trim();
+    if (!/^[0-9a-fA-F]{64}$/.test(cleanedAddress)) {
+      throw new Error(
+        `Invalid contract address '${contractAddress}'. Must be exactly 64 hexadecimal characters (32 bytes).`,
+      );
+    }
+
+    // Fast check: verify contract exists on indexer before entering watchForDeployTxData
+    const contractState = await providers.publicDataProvider.queryContractState(cleanedAddress);
+    if (!contractState) {
+      throw new Error(
+        `No contract found on Midnight Preprod at address '${cleanedAddress}'. Please verify the address or create a new group.`,
+      );
+    }
+
+    const initialPrivateState = await SplitsAPI.getPrivateState(providers, cleanedAddress);
+
+    // Timeout findDeployedContract after 20 seconds so it never hangs indefinitely
+    const findPromise = findDeployedContract<Splits.Contract<SplitsPrivateState>>(providers, {
+      contractAddress: cleanedAddress,
       compiledContract: CompiledSplitsContractContract,
       privateStateId: splitsPrivateStateKey,
-      initialPrivateState: await SplitsAPI.getPrivateState(providers, contractAddress),
+      initialPrivateState,
     });
+
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(
+        () =>
+          reject(
+            new Error(
+              `Timed out connecting to contract at '${cleanedAddress}'. The indexer may be experiencing delays.`,
+            ),
+          ),
+        20000,
+      ),
+    );
+
+    const deployedSplitsContract = await Promise.race([findPromise, timeoutPromise]);
 
     logger?.trace({
       contractJoined: {
@@ -150,7 +194,7 @@ export class SplitsAPI {
       },
     });
 
-    return new SplitsAPI(deployedSplitsContract, providers, logger);
+    return new SplitsAPI(deployedSplitsContract, providers, logger, initialPrivateState);
   }
 
   private static async getPrivateState(
@@ -164,26 +208,25 @@ export class SplitsAPI {
 
   async changeActiveUser(idx: number, secretKey: Uint8Array): Promise<void> {
     const privateState = await this.providers.privateStateProvider.get(splitsPrivateStateKey);
-    const activePrivateState = privateState ?? createSplitsPrivateState(utils.randomBytes(32));
+    const activePrivateState =
+      (privateState as SplitsPrivateState) ?? this.privateState$.value ?? createSplitsPrivateState(utils.randomBytes(32));
 
-    await this.providers.privateStateProvider.set(splitsPrivateStateKey, {
+    const nextState: SplitsPrivateState = {
       ...activePrivateState,
       secretKey,
       activeIdx: idx,
-    });
+    };
+
+    await this.providers.privateStateProvider.set(splitsPrivateStateKey, nextState);
+    this.privateState$.next(nextState);
   }
 
   async postExpense(payerIdx: bigint, amount: bigint, shares: bigint[]): Promise<void> {
     this.logger?.info({ postExpense: { payerIdx, amount, shares } });
-    
-    const paddedShares = [
-      shares[0] || 0n,
-      shares[1] || 0n,
-      shares[2] || 0n,
-      shares[3] || 0n,
-    ];
 
-    const txData = await this.deployedContract.callTx.post_expense(payerIdx, amount, paddedShares as any);
+    const paddedShares = [shares[0] || 0n, shares[1] || 0n, shares[2] || 0n, shares[3] || 0n];
+
+    const txData = await this.deployedContract.callTx.post_expense(payerIdx, amount, paddedShares);
     this.logger?.trace({ postExpenseTx: txData.public.txHash });
   }
 
@@ -191,18 +234,14 @@ export class SplitsAPI {
     this.logger?.info({ syncBalance: { idx } });
 
     const privateState = await this.providers.privateStateProvider.get(splitsPrivateStateKey);
-    const activePrivateState = privateState ?? createSplitsPrivateState(utils.randomBytes(32));
+    const activePrivateState =
+      (privateState as SplitsPrivateState) ?? this.privateState$.value ?? createSplitsPrivateState(utils.randomBytes(32));
 
     const oldBalance = activePrivateState.balances[idx] ?? 0n;
     const oldSalt = activePrivateState.salts[idx] ?? new Uint8Array(32);
     const newSalt = utils.randomBytes(32);
 
-    const txData = await this.deployedContract.callTx.sync_balance(
-      BigInt(idx),
-      oldBalance,
-      oldSalt,
-      newSalt
-    );
+    const txData = await this.deployedContract.callTx.sync_balance(BigInt(idx), oldBalance, oldSalt, newSalt);
     this.logger?.trace({ syncBalanceTx: txData.public.txHash });
 
     // Calculate new balance
@@ -218,18 +257,22 @@ export class SplitsAPI {
     const nextBalances = { ...activePrivateState.balances, [idx]: newBalance };
     const nextSalts = { ...activePrivateState.salts, [idx]: newSalt };
 
-    await this.providers.privateStateProvider.set(splitsPrivateStateKey, {
+    const nextPrivateState: SplitsPrivateState = {
       ...activePrivateState,
       balances: nextBalances,
       salts: nextSalts,
-    });
+    };
+
+    await this.providers.privateStateProvider.set(splitsPrivateStateKey, nextPrivateState);
+    this.privateState$.next(nextPrivateState);
   }
 
   async postPayment(debtorIdx: number, creditorIdx: number, amount: bigint): Promise<void> {
     this.logger?.info({ postPayment: { debtorIdx, creditorIdx, amount } });
 
     const privateState = await this.providers.privateStateProvider.get(splitsPrivateStateKey);
-    const activePrivateState = privateState ?? createSplitsPrivateState(utils.randomBytes(32));
+    const activePrivateState =
+      (privateState as SplitsPrivateState) ?? this.privateState$.value ?? createSplitsPrivateState(utils.randomBytes(32));
 
     const oldBalance = activePrivateState.balances[debtorIdx] ?? 0n;
     const oldSalt = activePrivateState.salts[debtorIdx] ?? new Uint8Array(32);
@@ -241,47 +284,50 @@ export class SplitsAPI {
       amount,
       oldBalance,
       oldSalt,
-      newSalt
+      newSalt,
     );
     this.logger?.trace({ postPaymentTx: txData.public.txHash });
 
     const nextBalances = { ...activePrivateState.balances, [debtorIdx]: oldBalance + amount };
     const nextSalts = { ...activePrivateState.salts, [debtorIdx]: newSalt };
 
-    await this.providers.privateStateProvider.set(splitsPrivateStateKey, {
+    const nextPrivateState: SplitsPrivateState = {
       ...activePrivateState,
       balances: nextBalances,
       salts: nextSalts,
-    });
+    };
+
+    await this.providers.privateStateProvider.set(splitsPrivateStateKey, nextPrivateState);
+    this.privateState$.next(nextPrivateState);
   }
 
   async claimPayment(currentLedgerState: SplitsDerivedState): Promise<void> {
     this.logger?.info('claimPayment');
 
     const privateState = await this.providers.privateStateProvider.get(splitsPrivateStateKey);
-    const activePrivateState = privateState ?? createSplitsPrivateState(utils.randomBytes(32));
+    const activePrivateState =
+      (privateState as SplitsPrivateState) ?? this.privateState$.value ?? createSplitsPrivateState(utils.randomBytes(32));
 
     const creditorIdx = Number(currentLedgerState.pending_payment_to);
     const oldBalance = activePrivateState.balances[creditorIdx] ?? 0n;
     const oldSalt = activePrivateState.salts[creditorIdx] ?? new Uint8Array(32);
     const newSalt = utils.randomBytes(32);
 
-    const txData = await this.deployedContract.callTx.claim_payment(
-      oldBalance,
-      oldSalt,
-      newSalt
-    );
+    const txData = await this.deployedContract.callTx.claim_payment(oldBalance, oldSalt, newSalt);
     this.logger?.trace({ claimPaymentTx: txData.public.txHash });
 
     const amount = currentLedgerState.pending_payment_amount;
     const nextBalances = { ...activePrivateState.balances, [creditorIdx]: oldBalance - amount };
     const nextSalts = { ...activePrivateState.salts, [creditorIdx]: newSalt };
 
-    await this.providers.privateStateProvider.set(splitsPrivateStateKey, {
+    const nextPrivateState: SplitsPrivateState = {
       ...activePrivateState,
       balances: nextBalances,
       salts: nextSalts,
-    });
+    };
+
+    await this.providers.privateStateProvider.set(splitsPrivateStateKey, nextPrivateState);
+    this.privateState$.next(nextPrivateState);
   }
 
   async joinGroup(idx: number): Promise<void> {

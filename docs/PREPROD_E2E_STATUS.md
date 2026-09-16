@@ -14,7 +14,7 @@ It exists because the prior status ("PENDING" in `docs/PREPROD_EVIDENCE.md`, `do
 
 While reconciling this local investigation with `origin/master` (which had a commit predating this session, `8880f6f`, adding a bare "Contract Deployment Tx Hash" line to the README with no supporting context), that transaction hash was independently checked against the live Preprod indexer rather than accepted at face value.
 
-**Verification method:** queried `https://indexer.preprod.midnight.network/api/v4/graphql` directly for the transaction, then fetched the resulting contract address's live on-chain state and decoded it with this project's own compiled `Splits.ledger()` function (`contract/src/managed/splits/contract/index.js`) — the same decoder `bboard-ui` and `bboard-cli`'s launcher scripts use — rather than trusting the raw hex or the README string.
+**Verification method:** queried `https://indexer.preprod.midnight.network/api/v4/graphql` directly for the transaction, then fetched the resulting contract address's live on-chain state and decoded it with this project's own compiled `Splits.ledger()` function (`contract/src/managed/splits/contract/index.js`) — the same decoder `confidential-splits-ui` and `confidential-splits-cli`'s launcher scripts use — rather than trusting the raw hex or the README string.
 
 | Field | Value |
 |---|---|
@@ -29,7 +29,7 @@ While reconciling this local investigation with `origin/master` (which had a com
 
 **What this proves:** a real Splits contract was genuinely deployed on Preprod, with a real creator public key in slot 0. **What this does not prove:** anything beyond deployment. The decoded state is byte-for-byte the constructor's genesis output — no `join_group`, `post_expense`, `sync_balance`, `post_payment`, or `claim_payment` has ever touched this contract instance.
 
-**Provenance:** this deployment was **not** produced by this repository's `preprod-splits-e2e.ts` or `populate-preprod.ts` (§6-§8 below) — both generate fresh random wallet seeds every run and neither ever got past the faucet-funding stage before hanging. This deployment predates this investigation entirely and most likely came from the real browser UI (`bboard-ui`) with an actual 1AM wallet — the intended end-user path this investigation did not have a working browser+extension setup to test directly (see §11).
+**Provenance:** this deployment was **not** produced by this repository's `preprod-splits-e2e.ts` or `populate-preprod.ts` (§6-§8 below) — both generate fresh random wallet seeds every run and neither ever got past the faucet-funding stage before hanging. This deployment predates this investigation entirely and most likely came from the real browser UI (`confidential-splits-ui`) with an actual 1AM wallet — the intended end-user path this investigation did not have a working browser+extension setup to test directly (see §11).
 
 ---
 
@@ -49,7 +49,7 @@ Wallet funding (real Preprod faucet)
   → application reads/reflects the confirmed result (ledger state updates: members, balance_commitments, pending_payment_status)
 ```
 
-The exact code path was traced directly from source (not assumed) across `contract/src/splits.compact`, `api/src/splits-api.ts`, and `bboard-ui/src/App.tsx` — see `bboard-cli/src/launcher/preprod-splits-e2e.ts` for the resulting non-interactive script, which reproduces the browser UI's own identity derivation (`secretKey = SHA-256(unshieldedAddress)`) byte-for-byte and drives the same `SplitsAPI` class the UI uses, via two independently funded wallets (`MidnightWalletProvider`) instead of two browser tabs running the 1AM extension.
+The exact code path was traced directly from source (not assumed) across `contract/src/splits.compact`, `api/src/splits-api.ts`, and `confidential-splits-ui/src/App.tsx` — see `confidential-splits-cli/src/launcher/preprod-splits-e2e.ts` for the resulting non-interactive script, which reproduces the browser UI's own identity derivation (`secretKey = SHA-256(unshieldedAddress)`) byte-for-byte and drives the same `SplitsAPI` class the UI uses, via two independently funded wallets (`MidnightWalletProvider`) instead of two browser tabs running the 1AM extension.
 
 ---
 
@@ -114,7 +114,7 @@ This is the SDK authors' own documented awareness of a subscription-cursor edge 
 
 ## 8. Confirmed not specific to this project's new code
 
-To rule out a bug introduced by `preprod-splits-e2e.ts` (written for this investigation), the exact same hang was reproduced using `bboard-cli/src/launcher/populate-preprod.ts` — a script that already existed in this repository, unmodified, targeting the legacy BBoard contract instead of Splits. It uses the identical wallet-build → faucet-fund → wait-for-balance code path (`MidnightWalletProvider`, `waitForUnshieldedFunds`, same wallet SDK). It hung in the identical way, at the identical point, with the identical log signature. This confirms the defect is in the shared wallet SDK layer, not in any Splits-specific or newly written code.
+To rule out a bug introduced by `preprod-splits-e2e.ts` (written for this investigation), the exact same hang was reproduced using `confidential-splits-cli/src/launcher/populate-preprod.ts` — a script that already existed in this repository, unmodified, targeting the legacy BBoard contract instead of Splits. It uses the identical wallet-build → faucet-fund → wait-for-balance code path (`MidnightWalletProvider`, `waitForUnshieldedFunds`, same wallet SDK). It hung in the identical way, at the identical point, with the identical log signature. This confirms the defect is in the shared wallet SDK layer, not in any Splits-specific or newly written code.
 
 ---
 
@@ -129,7 +129,7 @@ Before concluding this was unfixable within safe bounds, the following was check
 
 The only actively-developed newer code is the `1.2.1-canary` / `2.0.0-beta` line. Its own published dependency graph was inspected directly (`npm view ... dependencies`), and it requires simultaneous major-version bumps across the entire sibling SDK family as an interlocked pre-release set: `wallet-sdk-dust-wallet` 4→5, `wallet-sdk-facade` 4→5, `wallet-sdk-unshielded-wallet` 2→3, and ten other sub-packages, none of them stable.
 
-**Conclusion: no safe, narrow dependency update exists today.** The only available newer build is an entire pre-release major-version migration touching every wallet integration point in this codebase (`bboard-cli/src/midnight-wallet-provider.ts`, `wallet-utils.ts`, `generate-dust.ts`, `api/src/splits-api.ts`, `bboard-ui`'s wallet context), with no changelog or upstream confirmation that it even fixes this specific issue. Per the explicit decision made during this investigation, **no dependency version was changed** — `package.json` and `package-lock.json` remain exactly as they were. Forcing an unvalidated pre-release major-version migration to chase an unconfirmed fix was judged less safe than leaving the dependency tree untouched and documenting the blocker.
+**Conclusion: no safe, narrow dependency update exists today.** The only available newer build is an entire pre-release major-version migration touching every wallet integration point in this codebase (`confidential-splits-cli/src/midnight-wallet-provider.ts`, `wallet-utils.ts`, `generate-dust.ts`, `api/src/splits-api.ts`, `confidential-splits-ui`'s wallet context), with no changelog or upstream confirmation that it even fixes this specific issue. Per the explicit decision made during this investigation, **no dependency version was changed** — `package.json` and `package-lock.json` remain exactly as they were. Forcing an unvalidated pre-release major-version migration to chase an unconfirmed fix was judged less safe than leaving the dependency tree untouched and documenting the blocker.
 
 ---
 
@@ -137,7 +137,7 @@ The only actively-developed newer code is the `1.2.1-canary` / `2.0.0-beta` line
 
 **These are two entirely separate pieces of evidence and must not be conflated:**
 
-- **The 339-address scanner** (`bboard-cli/src/launcher/scan-preprod-addresses.ts`, documented in the main `README.md` §5–§8) independently walks the public Preprod indexer and proves that **339 distinct wallet addresses have real, observable, verifiable on-chain activity** on the Preprod network, generated by *other* real usage of the network unrelated to this application.
+- **The 339-address scanner** (`confidential-splits-cli/src/launcher/scan-preprod-addresses.ts`, documented in the main `README.md` §5–§8) independently walks the public Preprod indexer and proves that **339 distinct wallet addresses have real, observable, verifiable on-chain activity** on the Preprod network, generated by *other* real usage of the network unrelated to this application.
 - **This document** concerns whether *this specific application* (Confidential Splits) has completed its *own* deploy → join → expense → sync → payment → claim transaction sequence.
 
 The 339-address scan proves that real, observable Preprod activity genuinely exists and is independently verifiable. **It does not, and was never claimed to, prove that this application completed its own end-to-end flow.** The two are unrelated evidence for two different requirements, and this document's BLOCKED status has no bearing on the validity of the 339-address result, nor does the 339-address result substitute for this one.
@@ -150,7 +150,7 @@ Only legitimate options are listed. None of the following is claimed to be guara
 
 - **An upstream fix in the Midnight wallet SDK.** If the cursor-boundary condition described in §6 is patched in a future *stable* release of `@midnight-ntwrk/wallet-sdk-dust-wallet`, retrying this project's existing, unmodified E2E scripts (`preprod-splits-e2e.ts`, `populate-preprod.ts`) against that release would be the direct next step.
 - **Guidance from Midnight maintainers.** This investigation reproduced and root-caused the hang from source inspection alone, with no upstream issue filed or maintainer response yet obtained. Filing the reproduction in §5–§7 with the Midnight team (e.g. via their Discord/forum/GitHub) and following their guidance is a legitimate path not yet taken.
-- **A compatible, supported wallet/network path that avoids the affected code.** For example, driving the flow through the actual 1AM browser wallet extension (as an end user would, per `bboard-ui`) rather than the programmatic `MidnightWalletProvider`/testkit-js path, in case the browser extension's wallet stack does not share this exact dust-sync code path. This has not been attempted in this investigation and would require the 1AM extension installed and manually operated in a real browser.
+- **A compatible, supported wallet/network path that avoids the affected code.** For example, driving the flow through the actual 1AM browser wallet extension (as an end user would, per `confidential-splits-ui`) rather than the programmatic `MidnightWalletProvider`/testkit-js path, in case the browser extension's wallet stack does not share this exact dust-sync code path. This has not been attempted in this investigation and would require the 1AM extension installed and manually operated in a real browser.
 - **Retrying after the underlying SDK issue is resolved**, rather than continuing to retry the currently-installed version, which has now failed identically on three independent real attempts (§5) including this repository's own pre-existing script (§7).
 
 No other resolution should be assumed or attempted without one of the above actually occurring first.

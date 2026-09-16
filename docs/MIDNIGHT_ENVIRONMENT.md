@@ -55,7 +55,7 @@ export PATH="/home/sylvia/.nvm/versions/node/v24.18.1/bin:/home/sylvia/.local/bi
   ```
 * **UI Server Build:**
   ```bash
-  npm run build --workspace=bboard-ui
+  npm run build --workspace=confidential-splits-ui
   ```
 
 ---

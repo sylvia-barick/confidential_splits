@@ -8,8 +8,8 @@ This report documents the security audit conducted on the **Confidential Splits*
 
 | Audit Vector | Inspected Targets | Risk Rating | Status / Finding |
 | :--- | :--- | :--- | :--- |
-| **Private Keys & Seed Phrases** | `bboard-ui/src/`, `contract/src/`, environment configurations | **NONE** | No seed phrases, private keys, or wallet credentials are hardcoded or checked into Git. |
-| **Console Logs** | `bboard-ui/src/App.tsx`, `contract/src/settlement.ts` | **NONE** | No logging of private participant balances or salts. Only public transaction outputs and network statuses are logged. |
+| **Private Keys & Seed Phrases** | `confidential-splits-ui/src/`, `contract/src/`, environment configurations | **NONE** | No seed phrases, private keys, or wallet credentials are hardcoded or checked into Git. |
+| **Console Logs** | `confidential-splits-ui/src/App.tsx`, `contract/src/settlement.ts` | **NONE** | No logging of private participant balances or salts. Only public transaction outputs and network statuses are logged. |
 | **Storage Leakage** | `localStorage`, `sessionStorage` usage | **NONE** | No sensitive client-side parameters, ZK salts, or private keys are written to persistent browser storage. |
 | **Public Ledger State** | `splits.compact` state fields | **NONE** | Individual actual balances are securely hashed and stored as blind commitments. |
 | **Network & API Payloads** | RPC calls, WebSocket sync messages | **NONE** | Data transmission is restricted to public ledger values and ZK proof descriptors. |

@@ -33,19 +33,19 @@ This automatically updates compiled files inside `contract/src/managed/`.
 ### Step 3: Build the UI Workspace
 Run the production build command:
 ```bash
-npm run build --workspace=bboard-ui
+npm run build --workspace=confidential-splits-ui
 ```
 This script executes the following sequence:
 1. Runs `copy-zk-keys.js` to map and transfer all compiled Splits and BBoard ZK keys into `public/keys` and `public/zkir`.
 2. Compiles TypeScript modules.
 3. Invokes Vite build configured for the **Preprod network** (`--mode preprod`).
-4. Outputs the fully bundled static files in `bboard-ui/dist/`.
+4. Outputs the fully bundled static files in `confidential-splits-ui/dist/`.
 
 ### Step 4: Host Static Output
-Deploy the generated contents of the `bboard-ui/dist/` directory to your static hosting provider.
-* **Vercel**: Run `npx vercel ./bboard-ui/dist`
-* **Netlify**: Run `npx netlify deploy --dir=./bboard-ui/dist`
-* **Local HTTP Server**: Run `npx http-server ./bboard-ui/dist --port 8080`
+Deploy the generated contents of the `confidential-splits-ui/dist/` directory to your static hosting provider.
+* **Vercel**: Run `npx vercel ./confidential-splits-ui/dist`
+* **Netlify**: Run `npx netlify deploy --dir=./confidential-splits-ui/dist`
+* **Local HTTP Server**: Run `npx http-server ./confidential-splits-ui/dist --port 8080`
 
 ---
 

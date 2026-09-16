@@ -48,10 +48,10 @@ export circuit commit(balance: Field, salt: Bytes<32>): Bytes<32> {
 }
 
 export circuit post_expense(payer_idx: Field, amount: Field, shares: Vector<4, Field>): [] {
-  assert(synced_mask[0], "Previous expense not synced by participant 0");
-  assert(synced_mask[1], "Previous expense not synced by participant 1");
-  assert(synced_mask[2], "Previous expense not synced by participant 2");
-  assert(synced_mask[3], "Previous expense not synced by participant 3");
+  assert(synced_mask[0] || members[0] == pad(32, ""), "Previous expense not synced by participant 0");
+  assert(synced_mask[1] || members[1] == pad(32, ""), "Previous expense not synced by participant 1");
+  assert(synced_mask[2] || members[2] == pad(32, ""), "Previous expense not synced by participant 2");
+  assert(synced_mask[3] || members[3] == pad(32, ""), "Previous expense not synced by participant 3");
 
   const public_payer_idx = disclose(payer_idx);
   const public_amount = disclose(amount);
@@ -82,8 +82,15 @@ export circuit post_expense(payer_idx: Field, amount: Field, shares: Vector<4, F
   pending_expense_amount = public_amount;
   pending_expense_payer_idx = public_payer_idx;
   pending_expense_shares = public_shares;
-  
-  synced_mask = [false, false, false, false];
+
+  // Empty slots have no holder who can ever call sync_balance for them, so
+  // leave them marked synced; only occupied slots need to catch up.
+  synced_mask = [
+    members[0] == pad(32, ""),
+    members[1] == pad(32, ""),
+    members[2] == pad(32, ""),
+    members[3] == pad(32, "")
+  ];
 }
 
 export circuit sync_balance(idx: Field, old_balance: Field, old_salt: Bytes<32>, new_salt: Bytes<32>): [] {

@@ -105,14 +105,14 @@ It demonstrates a complete, non-trivial ZK application pattern — dynamic multi
 
 | Feature | What it does | How it works | Where implemented | In live MVP? |
 |---|---|---|---|---|
-| **Dynamic group membership** | Up to 4 wallets can join a group via a shared invite link | `join_group(idx)` circuit checks the slot is vacant and writes the caller's ZK public key | `contract/src/splits.compact` (circuit `join_group`, line 236); UI invite parsing in `bboard-ui/src/App.tsx` | Yes — buildable & simulator-tested; real Preprod run attempted and BLOCKED (§13) |
+| **Dynamic group membership** | Up to 4 wallets can join a group via a shared invite link | `join_group(idx)` circuit checks the slot is vacant and writes the caller's ZK public key | `contract/src/splits.compact` (circuit `join_group`, line 236); UI invite parsing in `confidential-splits-ui/src/App.tsx` | Yes — buildable & simulator-tested; real Preprod run attempted and BLOCKED (§13) |
 | **Confidential expense posting** | Records an expense and its per-member split | `post_expense(payer_idx, amount, shares)` asserts shares sum exactly to the total | `contract/src/splits.compact` line 50 | Yes (same caveat) |
 | **Private balance commitments** | Keeps each member's real balance off-chain | `sync_balance` recomputes `commitment = hash(balance, salt)` locally and posts only the new hash | `contract/src/splits.compact` line 83; `commit`/`publicKey` helper circuits lines 42–46 | Yes (same caveat) |
 | **Settlement payment & claim** | Debtor pays, creditor claims, both ZK-proven | `post_payment` locks a routing entry and updates the debtor's commitment; `claim_payment` clears it and updates the creditor's | `contract/src/splits.compact` lines 168 & 205 | Yes (same caveat) |
 | **Minimum cash-flow settlement engine** | Reduces N pairwise debts to the fewest necessary payments | Greedy algorithm: repeatedly pays the max creditor from the max debtor until all balances are zero | `contract/src/settlement.ts` | Yes, runs client-side in the UI |
-| **1AM wallet integration** | Connects, signs, and derives ZK keys from a real browser wallet | Uses the injected `window.midnight["1am"]` DApp Connector API | `bboard-ui/src/contexts/BrowserDeployedSplitsManager.ts`, `api/src/splits-api.ts` | Yes |
-| **Local ZK proof generation** | Proves circuit executions without a trusted server | Docker proof-server container (`proof-server-local.yml`) invoked via `midnight-js-http-client-proof-provider` | `bboard-cli/proof-server-local.yml`, `api/src/splits-api.ts` | Yes (required to run the app) |
-| **Preprod address discovery scanner** | Independently proves real wallet activity exists on Preprod | Walks the indexer block-by-block, records every `owner` on unshielded UTXOs | `bboard-cli/src/launcher/scan-preprod-addresses.ts` | N/A — a standalone CLI tool, not part of the deployed UI |
+| **1AM wallet integration** | Connects, signs, and derives ZK keys from a real browser wallet | Uses the injected `window.midnight["1am"]` DApp Connector API | `confidential-splits-ui/src/contexts/BrowserDeployedSplitsManager.ts`, `api/src/splits-api.ts` | Yes |
+| **Local ZK proof generation** | Proves circuit executions without a trusted server | Docker proof-server container (`proof-server-local.yml`) invoked via `midnight-js-http-client-proof-provider` | `confidential-splits-cli/proof-server-local.yml`, `api/src/splits-api.ts` | Yes (required to run the app) |
+| **Preprod address discovery scanner** | Independently proves real wallet activity exists on Preprod | Walks the indexer block-by-block, records every `owner` on unshielded UTXOs | `confidential-splits-cli/src/launcher/scan-preprod-addresses.ts` | N/A — a standalone CLI tool, not part of the deployed UI |
 | **Legacy bulletin-board contract** | Retained from the original Midnight example scaffold this project was built from | Simple post/take-down board, unrelated to Splits | `contract/src/bboard.compact` | No — not surfaced in the UI; kept only for its simulator tests |
 
 ---
@@ -131,18 +131,18 @@ It demonstrates a complete, non-trivial ZK application pattern — dynamic multi
 graph TD
   User("User / Browser") -->|"Approve Tx / Sign"| Wallet["1AM Wallet Extension"]
   Wallet -->|"Injected window.midnight['1am'] API"| Connector["DApp Connector"]
-  Connector --> UI["bboard-ui (React + Vite)\nApp.tsx, contexts/BrowserDeployedSplitsManager.ts"]
+  Connector --> UI["confidential-splits-ui (React + Vite)\nApp.tsx, contexts/BrowserDeployedSplitsManager.ts"]
   UI -->|"circuit calls"| API["api package\nsplits-api.ts (SplitsAPI wrapper)"]
   API -->|"impureCircuits"| Contract["contract/src/splits.compact\n(join_group, post_expense, sync_balance,\npost_payment, claim_payment)"]
   Contract -->|"proof request"| ProofServer["Local Proof Server\n(Docker, proof-server-local.yml)"]
   ProofServer -->|"proven transaction"| Preprod[("Midnight Preprod Ledger")]
   Preprod -->|"GraphQL / WS"| Indexer["Preprod Indexer\nindexer.preprod.midnight.network/api/v4/graphql"]
   Indexer -->|"pub/sub state updates"| UI
-  Indexer -->|"block-by-block scan"| Scanner["bboard-cli\nscan-preprod-addresses.ts"]
+  Indexer -->|"block-by-block scan"| Scanner["confidential-splits-cli\nscan-preprod-addresses.ts"]
   Scanner --> Exports["preprod-addresses.csv / .txt /\n-verification.txt"]
 ```
 
-This is the real component graph of the repo's four workspaces — `contract`, `api`, `bboard-ui`, `bboard-cli` — plus the two external services every deployment depends on: the 1AM wallet extension and the Preprod network (ledger + indexer). No component in this diagram is hypothetical; each box names the actual file or package that implements it.
+This is the real component graph of the repo's four workspaces — `contract`, `api`, `confidential-splits-ui`, `confidential-splits-cli` — plus the two external services every deployment depends on: the 1AM wallet extension and the Preprod network (ledger + indexer). No component in this diagram is hypothetical; each box names the actual file or package that implements it.
 
 ---
 
@@ -170,7 +170,7 @@ This is the real component graph of the repo's four workspaces — `contract`, `
 
 ```mermaid
 flowchart TD
-  A["1. User opens the dApp / invite link"] --> B["2. Frontend: bboard-ui resolves\nwallet connection via 1AM connector"]
+  A["1. User opens the dApp / invite link"] --> B["2. Frontend: confidential-splits-ui resolves\nwallet connection via 1AM connector"]
   B --> C["3. Frontend builds circuit call\n(e.g. post_expense) via api/splits-api.ts"]
   C --> D["4. Local proof server compiles\na ZK proof for the circuit inputs"]
   D --> E["5. Signed, proven transaction\nsubmitted to Midnight Preprod"]
@@ -228,7 +228,7 @@ sequenceDiagram
 
 ## 6. Midnight Preprod verification
 
-This repo includes a standalone scanner (`bboard-cli/src/launcher/scan-preprod-addresses.ts`) that walks the **real, live Midnight Preprod indexer** block by block and records every distinct wallet address it observes acting on an unshielded UTXO.
+This repo includes a standalone scanner (`confidential-splits-cli/src/launcher/scan-preprod-addresses.ts`) that walks the **real, live Midnight Preprod indexer** block by block and records every distinct wallet address it observes acting on an unshielded UTXO.
 
 **Result: 356 distinct verifiable Midnight Preprod wallet addresses with real, observable on-chain activity.**
 
@@ -241,14 +241,14 @@ These are **not** "356 unique humans." They are 356 distinct observable wallet a
 | Metric | Value | Source |
 |---|---|---|
 | Indexer queried | `https://indexer.preprod.midnight.network/api/v4/graphql` (the same endpoint documented at [docs.midnight.network](https://docs.midnight.network/guides/networks-and-environments)) | `.env.example`, scanner source |
-| Block range covered by the 356 exported addresses | heights **2,147,406 – 2,207,756** | computed directly from `bboard-cli/preprod-addresses.csv` |
-| Total recorded UTXO appearances (created + spent) across those addresses | **5,623** | computed directly from `bboard-cli/preprod-addresses.csv` |
+| Block range covered by the 356 exported addresses | heights **2,147,406 – 2,207,756** | computed directly from `confidential-splits-cli/preprod-addresses.csv` |
+| Total recorded UTXO appearances (created + spent) across those addresses | **5,623** | computed directly from `confidential-splits-cli/preprod-addresses.csv` |
 | Contract addresses excluded from the export | tracked separately via `contractActions.address`, never written to the address list | scanner source, `uniqueContractAddresses` |
 | Validator / block-author addresses excluded | tracked separately via `block.author`, never written to the address list | scanner source, `uniqueBlockAuthors` |
-| Per-address metadata collected | total/created/spent counts, first/last-seen block height, up to 25 stored tx-hash+height+role appearances per address | `bboard-cli/preprod-addresses.csv` columns |
-| Independent verification | every address is reproducible by re-querying the same public indexer for its recorded tx hash(es) | `bboard-cli/preprod-addresses-verification.txt` |
+| Per-address metadata collected | total/created/spent counts, first/last-seen block height, up to 25 stored tx-hash+height+role appearances per address | `confidential-splits-cli/preprod-addresses.csv` columns |
+| Independent verification | every address is reproducible by re-querying the same public indexer for its recorded tx hash(es) | `confidential-splits-cli/preprod-addresses-verification.txt` |
 
-The underlying scan checkpoint (`bboard-cli/preprod-address-activity.json`) ran to completion (`complete: true`) across blocks 2,146,967–2,207,966 (61,000 blocks, 6,761 transactions scanned, 374 contract addresses and 13 validator addresses excluded), stopping at its `STOP_AT_ADDRESS_COUNT` target of **356** addresses. The CSV/TXT/verification exports were refreshed from that checkpoint and match it exactly. **The 356 figure used throughout this README is the one actually backed by the exported, linkable files.**
+The underlying scan checkpoint (`confidential-splits-cli/preprod-address-activity.json`) ran to completion (`complete: true`) across blocks 2,146,967–2,207,966 (61,000 blocks, 6,761 transactions scanned, 374 contract addresses and 13 validator addresses excluded), stopping at its `STOP_AT_ADDRESS_COUNT` target of **356** addresses. The CSV/TXT/verification exports were refreshed from that checkpoint and match it exactly. **The 356 figure used throughout this README is the one actually backed by the exported, linkable files.**
 
 ---
 
@@ -256,13 +256,13 @@ The underlying scan checkpoint (`bboard-cli/preprod-address-activity.json`) ran 
 
 The submission requirement was **50+ verifiable Preprod addresses**. The scan produced **356**, each with independently verifiable on-chain evidence.
 
-Three files hold the complete, real result set (all in `bboard-cli/`):
+Three files hold the complete, real result set (all in `confidential-splits-cli/`):
 
 | File | Contents |
 |---|---|
-| [`bboard-cli/preprod-addresses.csv`](./bboard-cli/preprod-addresses.csv) | Full data set: address, total/created/spent appearance counts, first/last-seen block height, and the semicolon-separated list of tx-hash(role@height) records backing each address |
-| [`bboard-cli/preprod-addresses.txt`](./bboard-cli/preprod-addresses.txt) | The same 356 addresses, one per line, sorted by activity |
-| [`bboard-cli/preprod-addresses-verification.txt`](./bboard-cli/preprod-addresses-verification.txt) | Ready-to-run `curl` commands against the live indexer for the 5 most active addresses, so a reviewer can verify without touching any code |
+| [`confidential-splits-cli/preprod-addresses.csv`](./confidential-splits-cli/preprod-addresses.csv) | Full data set: address, total/created/spent appearance counts, first/last-seen block height, and the semicolon-separated list of tx-hash(role@height) records backing each address |
+| [`confidential-splits-cli/preprod-addresses.txt`](./confidential-splits-cli/preprod-addresses.txt) | The same 356 addresses, one per line, sorted by activity |
+| [`confidential-splits-cli/preprod-addresses-verification.txt`](./confidential-splits-cli/preprod-addresses-verification.txt) | Ready-to-run `curl` commands against the live indexer for the 5 most active addresses, so a reviewer can verify without touching any code |
 
 
 
@@ -272,7 +272,7 @@ Three files hold the complete, real result set (all in `bboard-cli/`):
 
 Any address in `preprod-addresses.csv`/`.txt` can be independently verified by any reviewer, with no dependency on this repository being trusted:
 
-1. **Pick an address** from `bboard-cli/preprod-addresses.txt`, e.g.:
+1. **Pick an address** from `confidential-splits-cli/preprod-addresses.txt`, e.g.:
    ```
    mn_addr_preprod14uvf6ayeytracv8kx89w06kluf6d7kefdruxzskskgy0dflku69sqp5x2e
    ```
@@ -348,7 +348,7 @@ flowchart TD
 Run it yourself:
 
 ```bash
-cd bboard-cli
+cd confidential-splits-cli
 LOOKBACK_DAYS=7 STOP_AT_ADDRESS_COUNT=50 npm run scan-preprod-addresses
 ```
 
@@ -389,7 +389,7 @@ All links below point to files that exist in this repository.
 - [`docs/RELEASE_READINESS.md`](./docs/RELEASE_READINESS.md)
 
 **Address verification**
-- [`bboard-cli/preprod-addresses.csv`](./bboard-cli/preprod-addresses.csv), [`.txt`](./bboard-cli/preprod-addresses.txt), [`-verification.txt`](./bboard-cli/preprod-addresses-verification.txt)
+- [`confidential-splits-cli/preprod-addresses.csv`](./confidential-splits-cli/preprod-addresses.csv), [`.txt`](./confidential-splits-cli/preprod-addresses.txt), [`-verification.txt`](./confidential-splits-cli/preprod-addresses-verification.txt)
 - [§5](#5-midnight-preprod-verification), [§6](#6-50-real-midnight-preprod-addresses), [§7](#7-address-verification-instructions), [§8](#8-data--scanning-architecture) above
 
 **Testing**
@@ -415,7 +415,7 @@ All links below point to files that exist in this repository.
 
 ## 12. Live demo & demo video
 
-**Live demo:** [https://midlev4.vercel.app/](https://midlev4.vercel.app/) — deployed from `bboard-ui/dist` per `vercel.json`. The endpoint responds and serves the built SPA; exercising the full flow requires a 1AM wallet extension (set to Preprod) and a locally running proof server (`docker compose -f bboard-cli/proof-server-local.yml up -d`), per [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md).
+**Live demo:** [https://midlev4.vercel.app/](https://midlev4.vercel.app/) — deployed from `confidential-splits-ui/dist` per `vercel.json`. The endpoint responds and serves the built SPA; exercising the full flow requires a 1AM wallet extension (set to Preprod) and a locally running proof server (`docker compose -f confidential-splits-cli/proof-server-local.yml up -d`), per [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md).
 
 **Demo video:** a video file (`confidential splits.mp4`, ~69 MB) is present in the linked [Google Drive folder](https://drive.google.com/drive/folders/1yGLrMIRjEJaOyin215wK-29l6Ppci6SN?usp=sharing). This README does not claim to have reviewed its contents against the full MVP walkthrough checklist in [`docs/VIDEO_CHECKLIST.md`](./docs/VIDEO_CHECKLIST.md) — confirm that manually before treating this requirement as fully closed.
 
@@ -516,10 +516,10 @@ This comfortably exceeds the 20-commit minimum; no commits were fabricated or pa
 | Technology | Role |
 |---|---|
 | **Compact** (Midnight's ZK circuit language) | Smart contract & circuit logic — `contract/src/splits.compact`, `bboard.compact` |
-| **TypeScript 5.9** | Language for all four workspaces (contract, api, bboard-cli, bboard-ui) |
+| **TypeScript 5.9** | Language for all four workspaces (contract, api, confidential-splits-cli, confidential-splits-ui) |
 | **@midnight-ntwrk/midnight-js-\*** (v4.1.1) & **wallet-sdk** (1.2.0) | Contract deployment, indexer queries, proof-provider client, network-id config |
 | **@midnight-ntwrk/dapp-connector-api** | Injected wallet connector interface (1AM) |
-| **React 19 + Vite 8** | `bboard-ui` front end |
+| **React 19 + Vite 8** | `confidential-splits-ui` front end |
 | **Material UI** | UI component library for the dApp |
 | **Vitest** | Contract simulator test suite (27 tests) |
 | **Node.js ≥ 24.11.1** | Runtime for the CLI, API, and build tooling |
@@ -527,7 +527,7 @@ This comfortably exceeds the 20-commit minimum; no commits were fabricated or pa
 | **npm workspaces + Turborepo config** | Monorepo build orchestration (`turbo.json`, root `package.json`) |
 | **ESLint + Prettier** | Linting/formatting, enforced per workspace via `npm run ci` |
 | **GitHub Actions** | CI (`ci.yaml`) and CodeQL-style scan (`scan.yaml`) — see the branch-name caveat in §13 |
-| **Vercel** | Static hosting for the built `bboard-ui/dist` SPA |
+| **Vercel** | Static hosting for the built `confidential-splits-ui/dist` SPA |
 
 ---
 
@@ -544,11 +544,11 @@ level4/
 │       └── test/              # 27 Vitest simulator tests
 ├── api/                       # SplitsAPI wrapper: proving, syncing, private state
 │   └── src/splits-api.ts
-├── bboard-ui/                 # React + Vite front end (the actual dApp UI)
+├── confidential-splits-ui/                 # React + Vite front end (the actual dApp UI)
 │   ├── src/App.tsx            # Main UI: wallet connect, groups, expenses, settlement
 │   ├── src/contexts/          # BrowserDeployedSplitsManager, DeployedSplitsContext
 │   └── public/keys/, zkir/    # Compiled ZK prover/verifier keys served statically
-├── bboard-cli/                # CLI launchers + the Preprod address scanner
+├── confidential-splits-cli/                # CLI launchers + the Preprod address scanner
 │   ├── src/launcher/scan-preprod-addresses.ts   # Independent chain-scan tool (§8)
 │   ├── src/launcher/preprod-splits-e2e.ts       # App's own real E2E attempt (BLOCKED, see docs/PREPROD_E2E_STATUS.md)
 │   ├── preprod-addresses.csv / .txt / -verification.txt   # Scan results (§6)
@@ -560,18 +560,18 @@ level4/
 └── README.md                  # This file
 ```
 
-Generated/vendor directories (`node_modules/`, `bboard-ui/.vite/`, `dist/`) are omitted above.
+Generated/vendor directories (`node_modules/`, `confidential-splits-ui/.vite/`, `dist/`) are omitted above.
 
 ---
 
 ## 17. Security / privacy
 
-- **No private keys, seed phrases, or mnemonics are committed.** Confirmed by searching tracked files: only `.env.example`, `bboard-ui/.env.preprod`, and `bboard-ui/.env.preview` are tracked, and all three contain only public network configuration (`MIDNIGHT_NETWORK_ID`, RPC/indexer URLs, `VITE_NETWORK_ID`, log level) — zero credentials.
+- **No private keys, seed phrases, or mnemonics are committed.** Confirmed by searching tracked files: only `.env.example`, `confidential-splits-ui/.env.preprod`, and `confidential-splits-ui/.env.preview` are tracked, and all three contain only public network configuration (`MIDNIGHT_NETWORK_ID`, RPC/indexer URLs, `VITE_NETWORK_ID`, log level) — zero credentials.
 - **The real `.env`** (with any locally-set values) is excluded via `.gitignore` and was not found in `git ls-files`.
 - **Preprod addresses are public blockchain data.** Every address in `preprod-addresses.csv`/`.txt` is a value that was already broadcast on a public test ledger via a real transaction — publishing it here does not expose anything the chain itself doesn't already show.
 - **Shielded/private information is not exposed.** Per `docs/FINAL_SECURITY_AUDIT.md` and `docs/RELEASE_READINESS.md`, private balances, blinding salts, and ZK witness keys are never logged, stored in `localStorage`/`sessionStorage`, or sent over the network — only balance *commitments* (hashes) are.
 - **Generated scan data contains no credentials** — `preprod-address-activity.json` and its CSV/TXT/verification exports contain only addresses, public tx hashes, and block heights, all independently re-derivable from the public indexer.
-- **Dev-only code is gated out of production.** `bboard-ui/src/App.tsx` has a developer test-participant switcher guarded by `import.meta.env.DEV`, so it does not compile into the production build.
+- **Dev-only code is gated out of production.** `confidential-splits-ui/src/App.tsx` has a developer test-participant switcher guarded by `import.meta.env.DEV`, so it does not compile into the production build.
 
 ---
 
@@ -589,18 +589,18 @@ npm install --legacy-peer-deps
 cp .env.example .env   # edit if you need non-default Preprod endpoints
 
 # 4. Start the local ZK proof server (required for any transaction)
-cd bboard-cli
+cd confidential-splits-cli
 docker compose -f proof-server-local.yml up -d
 cd ..
 
-# 5. Build all workspaces (contract → api → bboard-ui, in order)
+# 5. Build all workspaces (contract → api → confidential-splits-ui, in order)
 npm run build
 
 # 6. Run the automated test suite (27 contract simulator tests)
 npm test --workspace=contract
 
 # 7. Run the Preprod address scanner (optional, produces §5/§6's data)
-cd bboard-cli
+cd confidential-splits-cli
 LOOKBACK_DAYS=7 STOP_AT_ADDRESS_COUNT=50 npm run scan-preprod-addresses
 cd ..
 
@@ -610,11 +610,11 @@ curl -s -X POST https://indexer.preprod.midnight.network/api/v4/graphql \
   -d '{"query":"query{transactions(offset:{hash:\"<tx_hash_from_csv>\"}){hash unshieldedCreatedOutputs{owner} block{height}}}"}'
 
 # 9. Run the UI locally
-cd bboard-ui
+cd confidential-splits-ui
 npm run dev
 ```
 
-All commands above are taken verbatim from the `scripts` blocks in the root, `bboard-cli`, and `bboard-ui` `package.json` files, and from `docs/DEPLOYMENT.md`.
+All commands above are taken verbatim from the `scripts` blocks in the root, `confidential-splits-cli`, and `confidential-splits-ui` `package.json` files, and from `docs/DEPLOYMENT.md`.
 
 ---
 

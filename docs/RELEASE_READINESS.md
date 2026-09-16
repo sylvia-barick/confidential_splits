@@ -11,10 +11,10 @@ Every major vector in the repository has been checked and categorized:
 | Target | Finding | Category | Action / Resolution |
 | :--- | :--- | :--- | :--- |
 | **`contract/src/splits.compact`** | Fully verified circuit logic and constraints. | **SAFE** | Retained as production contract. |
-| **`bboard-ui/src/App.tsx`** | Contains developer switcher panel under `import.meta.env.DEV`. | **DEV ONLY** | Gated correctly. Panel does not compile in production. |
+| **`confidential-splits-ui/src/App.tsx`** | Contains developer switcher panel under `import.meta.env.DEV`. | **DEV ONLY** | Gated correctly. Panel does not compile in production. |
 | **`contract/src/test/splits.test.ts`** | Contains simulation tests and mock key targets. | **TEST ONLY** | Excluded from build targets. |
 | **`.env.example`** | Network endpoints for Preprod testnet. | **DOCUMENTATION** | Retained. Contains **0** secrets. |
-| **`bboard-ui/public/keys/`** | Copied ZK prover and verifier keys. | **SAFE** | Served statically for proof compilation. |
+| **`confidential-splits-ui/public/keys/`** | Copied ZK prover and verifier keys. | **SAFE** | Served statically for proof compilation. |
 
 ---
 

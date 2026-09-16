@@ -53,12 +53,12 @@ jobs:
         run: |
           npm run ci
 
-      - name: Compile bboard-cli
-        working-directory: bboard-cli
+      - name: Compile confidential-splits-cli
+        working-directory: confidential-splits-cli
         run: |
           npm run ci
 
-      - name: Compile bboard-ui
-        working-directory: bboard-ui
+      - name: Compile confidential-splits-ui
+        working-directory: confidential-splits-ui
         run: |
           npm run ci

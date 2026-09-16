@@ -13,7 +13,7 @@ We will reuse the entire verified local Midnight test environment:
 ---
 
 ## 2. Components to be Modified
-* **UI App Component (`bboard-ui/src/App.tsx`)**: Will be modified to present the group management, expense creation, balance syncing, and settlement views rather than the bulletin board checker.
+* **UI App Component (`confidential-splits-ui/src/App.tsx`)**: Will be modified to present the group management, expense creation, balance syncing, and settlement views rather than the bulletin board checker.
 * **Service Provider Setup (`BrowserDeployedBoardManager.ts`)**: We will adapt it to initialize providers using the compiled `splits` contract instead of the test `bboard` contract.
 
 ---
