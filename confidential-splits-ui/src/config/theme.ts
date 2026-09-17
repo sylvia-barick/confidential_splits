@@ -1,90 +1,96 @@
 import { createTheme, alpha } from '@mui/material';
 
 /**
- * Confidential Splits — "Midnight Ledger" design system.
+ * Confidential Splits — restyled on the Linear.app design system.
  *
- * A near-black, high-contrast surface with one confident violet accent for
- * actions and a single teal reserved for anything that represents the
- * viewer's own shielded state. Hairline borders, layered shadows for real
- * depth (not blur), a fine grain overlay, and a strict 8px rhythm. Display
- * type is Space Grotesk with tight tracking; body is Inter; every on-chain
- * value is JetBrains Mono with tabular figures.
+ * Near-black canvas (#010102) with a four-step charcoal surface ladder,
+ * hairline borders instead of shadows, and a single chromatic accent —
+ * Linear's signature lavender-blue — reserved for primary actions, focus
+ * rings and brand marks. The muted "brand secure" lavender-gray is the one
+ * permitted tint variation, used for the app's shielded/private surfaces.
+ * Display type runs Inter at weight 600 with aggressive negative tracking;
+ * body holds at 400. JetBrains Mono carries every on-chain value.
  */
 
 // ---- palette tokens ---------------------------------------------------------
 
-const ink = {
-  900: '#07060b', // app canvas
-  850: '#0b0a12',
-  800: '#100e18', // raised surface
-  750: '#161320', // hover surface
-  700: '#1d1930',
+const canvas = '#010102';
+
+const surface = {
+  1: '#0f1011',
+  2: '#141516',
+  3: '#18191a',
+  4: '#191a1b',
 };
 
-const line = {
-  faint: 'rgba(255,255,255,0.06)',
-  soft: 'rgba(255,255,255,0.09)',
-  strong: 'rgba(255,255,255,0.14)',
+const hairline = {
+  faint: '#23252a',
+  strong: '#34343a',
+  tertiary: '#3e3e44',
 };
 
-const violet = {
-  main: '#8b5cf6',
-  light: '#a78bfa',
-  dark: '#6d34e8',
+const lavender = {
+  main: '#5e6ad2',
+  light: '#828fff',
+  dark: '#5e69d1',
   contrastText: '#ffffff',
 };
 
-const teal = {
-  main: '#2dd4bf',
-  light: '#5eead4',
-  dark: '#14a89a',
-  contrastText: '#03211d',
+// The one sanctioned tint variation of the brand hue — muted lavender-gray,
+// reserved for "security" surfaces (here: the shielded/private balance card).
+const brandSecure = {
+  main: '#7a7fad',
+  light: '#9a9fc4',
+  dark: '#5f6386',
+  contrastText: '#0f1011',
 };
 
 const text = {
-  primary: '#f5f3fb',
-  secondary: '#9c98b3',
-  disabled: '#615c78',
+  primary: '#f7f8f8',
+  secondary: '#8a8f98',
+  disabled: '#62666d',
 };
 
-export const csTokens = { ink, line, violet, teal, text };
+export const csTokens = { canvas, surface, hairline, lavender, brandSecure, text };
 
 // ---- shared style fragments ----------------------------------------------------
 
-const cardShadow = '0 1px 2px rgba(0,0,0,0.5), 0 10px 24px -12px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.03)';
-const cardShadowHover =
-  '0 2px 6px rgba(0,0,0,0.5), 0 22px 48px -16px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05)';
+// Linear resists drop shadows on dark — depth comes from the surface ladder
+// and a hairline border, plus a faint top-edge highlight for a "rendered
+// pixel" feel.
+const cardShadow = 'inset 0 1px 0 rgba(255,255,255,0.04)';
+const cardShadowHover = 'inset 0 1px 0 rgba(255,255,255,0.07)';
 
 export const theme = createTheme({
   palette: {
     mode: 'dark',
-    primary: violet,
-    secondary: teal,
-    success: { main: '#34d399', light: '#6ee7b7', dark: '#059669' },
+    primary: lavender,
+    secondary: brandSecure,
+    success: { main: '#27a644', light: '#4ec46a', dark: '#1d7a34' },
     warning: { main: '#fbbf24', light: '#fcd34d', dark: '#d97706' },
     error: { main: '#f87171', light: '#fca5a5', dark: '#dc2626' },
     info: { main: '#60a5fa', light: '#93c5fd', dark: '#2563eb' },
-    background: { default: ink[900], paper: ink[800] },
+    background: { default: canvas, paper: surface[1] },
     text,
-    divider: line.soft,
+    divider: hairline.faint,
   },
 
-  shape: { borderRadius: 14 },
+  shape: { borderRadius: 8 },
 
   typography: {
     fontFamily: "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
-    h1: { fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.05 },
-    h2: { fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.08 },
-    h3: { fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, letterSpacing: '-0.025em', lineHeight: 1.12 },
-    h4: { fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, letterSpacing: '-0.02em' },
-    h5: { fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, letterSpacing: '-0.015em' },
-    h6: { fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, letterSpacing: '-0.01em' },
-    subtitle1: { fontWeight: 500 },
+    h1: { fontFamily: "'Inter', sans-serif", fontWeight: 600, letterSpacing: '-0.0375em', lineHeight: 1.05 },
+    h2: { fontFamily: "'Inter', sans-serif", fontWeight: 600, letterSpacing: '-0.032em', lineHeight: 1.1 },
+    h3: { fontFamily: "'Inter', sans-serif", fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1.15 },
+    h4: { fontFamily: "'Inter', sans-serif", fontWeight: 600, letterSpacing: '-0.021em', lineHeight: 1.2 },
+    h5: { fontFamily: "'Inter', sans-serif", fontWeight: 500, letterSpacing: '-0.018em', lineHeight: 1.25 },
+    h6: { fontFamily: "'Inter', sans-serif", fontWeight: 500, letterSpacing: '-0.01em', lineHeight: 1.3 },
+    subtitle1: { fontWeight: 400, letterSpacing: '-0.01em' },
     subtitle2: { fontWeight: 600, letterSpacing: '0.01em' },
     body2: { lineHeight: 1.6 },
-    button: { fontWeight: 600, letterSpacing: '0.005em', textTransform: 'none' },
-    overline: { fontWeight: 700, letterSpacing: '0.22em', fontSize: '0.68rem' },
-    caption: { letterSpacing: '0.01em' },
+    button: { fontWeight: 500, letterSpacing: 0, textTransform: 'none' },
+    overline: { fontWeight: 500, letterSpacing: '0.06em', fontSize: '0.72rem' },
+    caption: { letterSpacing: 0 },
   },
 
   components: {
@@ -92,66 +98,35 @@ export const theme = createTheme({
       styleOverrides: {
         ':root': { colorScheme: 'dark' },
 
+        // Flat canvas — Linear's marketing surface carries no atmospheric
+        // gradients or spotlight glows, only the near-black anchor color.
         body: {
           minHeight: '100vh',
-          backgroundColor: ink[900],
+          backgroundColor: canvas,
           color: text.primary,
-          backgroundImage: [
-            `radial-gradient(1100px 620px at 8% -6%, ${alpha(violet.main, 0.14)}, transparent 60%)`,
-            `radial-gradient(900px 560px at 100% 0%, ${alpha(teal.main, 0.08)}, transparent 55%)`,
-            `radial-gradient(1200px 800px at 50% 120%, ${alpha(violet.dark, 0.12)}, transparent 60%)`,
-          ].join(','),
-          backgroundAttachment: 'fixed',
-          backgroundRepeat: 'no-repeat',
         },
 
-        // Fine film grain over the whole viewport — kills the "flat gradient" look.
-        'body::after': {
-          content: '""',
-          position: 'fixed',
-          inset: 0,
-          pointerEvents: 'none',
-          zIndex: 2147483000,
-          opacity: 0.5,
-          mixBlendMode: 'overlay',
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E\")",
-        },
-
-        '::selection': { background: alpha(violet.main, 0.4) },
+        '::selection': { background: alpha(lavender.main, 0.35) },
 
         '*::-webkit-scrollbar': { width: 11, height: 11 },
         '*::-webkit-scrollbar-track': { background: 'transparent' },
         '*::-webkit-scrollbar-thumb': {
-          background: alpha(violet.light, 0.2),
+          background: alpha(lavender.light, 0.2),
           borderRadius: 8,
           border: '3px solid transparent',
           backgroundClip: 'padding-box',
         },
-        '*::-webkit-scrollbar-thumb:hover': { background: alpha(violet.light, 0.38), backgroundClip: 'padding-box' },
+        '*::-webkit-scrollbar-thumb:hover': { background: alpha(lavender.light, 0.38), backgroundClip: 'padding-box' },
 
         // Motion vocabulary
         '@keyframes cs-rise': {
-          from: { opacity: 0, transform: 'translateY(14px)' },
+          from: { opacity: 0, transform: 'translateY(10px)' },
           to: { opacity: 1, transform: 'translateY(0)' },
         },
         '@keyframes cs-pulse': { '0%,100%': { opacity: 1 }, '50%': { opacity: 0.3 } },
         '@keyframes cs-ping': {
           '0%': { transform: 'scale(1)', opacity: 0.5 },
           '80%,100%': { transform: 'scale(2.4)', opacity: 0 },
-        },
-        '@keyframes cs-drift': {
-          '0%': { transform: 'translate3d(0,0,0) scale(1)' },
-          '33%': { transform: 'translate3d(3%,-4%,0) scale(1.06)' },
-          '66%': { transform: 'translate3d(-2%,3%,0) scale(0.97)' },
-          '100%': { transform: 'translate3d(0,0,0) scale(1)' },
-        },
-        '@keyframes cs-shimmer': {
-          '100%': { transform: 'translateX(100%)' },
-        },
-        '@keyframes cs-sheen': {
-          '0%': { transform: 'translateX(-120%) skewX(-18deg)' },
-          '60%,100%': { transform: 'translateX(220%) skewX(-18deg)' },
         },
         '@media (prefers-reduced-motion: reduce)': {
           '*': { animationDuration: '0.001ms !important', animationIterationCount: '1 !important' },
@@ -166,8 +141,9 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          backgroundColor: ink[800],
-          border: `1px solid ${line.faint}`,
+          backgroundColor: surface[1],
+          border: `1px solid ${hairline.faint}`,
+          borderRadius: 12,
           boxShadow: cardShadow,
           backgroundClip: 'padding-box',
         },
@@ -178,10 +154,8 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          backgroundColor: alpha(ink[900], 0.66),
-          backdropFilter: 'blur(20px) saturate(150%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(150%)',
-          borderBottom: `1px solid ${line.faint}`,
+          backgroundColor: canvas,
+          borderBottom: `1px solid ${hairline.faint}`,
           boxShadow: 'none',
           color: text.primary,
         },
@@ -189,72 +163,48 @@ export const theme = createTheme({
     },
 
     MuiButton: {
-      defaultProps: { disableElevation: true, disableRipple: false },
+      defaultProps: { disableElevation: true },
       styleOverrides: {
         root: {
-          position: 'relative',
-          borderRadius: 11,
-          paddingInline: 18,
-          paddingBlock: 9,
-          overflow: 'hidden',
-          transition:
-            'transform 150ms cubic-bezier(.2,.7,.2,1), box-shadow 150ms ease, background-color 150ms ease, border-color 150ms ease',
-          '&:focus-visible': { outline: `2px solid ${alpha(violet.light, 0.7)}`, outlineOffset: 2 },
-          '&:active': { transform: 'translateY(1px)' },
+          borderRadius: 8,
+          paddingInline: 14,
+          paddingBlock: 8,
+          transition: 'background-color 140ms ease, border-color 140ms ease, color 140ms ease',
+          '&:focus-visible': { outline: `2px solid ${alpha(lavender.dark, 0.5)}`, outlineOffset: 2 },
           '&.Mui-disabled': { opacity: 0.42 },
         },
         contained: {
-          backgroundColor: violet.main,
-          boxShadow: `0 1px 0 rgba(255,255,255,0.14) inset, 0 12px 28px -14px ${alpha(violet.main, 0.95)}`,
-          '&:hover': {
-            backgroundColor: violet.light,
-            boxShadow: `0 1px 0 rgba(255,255,255,0.2) inset, 0 16px 36px -14px ${alpha(violet.light, 1)}`,
-            transform: 'translateY(-1px)',
-          },
-          // moving sheen on hover
-          '&::after': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            width: '40%',
-            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)',
-            transform: 'translateX(-120%) skewX(-18deg)',
-          },
-          '&:hover::after': { animation: 'cs-sheen 900ms ease' },
+          backgroundColor: lavender.main,
+          boxShadow: 'none',
+          '&:hover': { backgroundColor: lavender.light, boxShadow: 'none' },
           '&.MuiButton-colorSecondary': {
-            color: teal.contrastText,
-            backgroundColor: teal.main,
-            boxShadow: `0 1px 0 rgba(255,255,255,0.22) inset, 0 12px 28px -14px ${alpha(teal.main, 0.9)}`,
+            color: brandSecure.contrastText,
+            backgroundColor: brandSecure.main,
           },
-          '&.MuiButton-colorSecondary:hover': { backgroundColor: teal.light, transform: 'translateY(-1px)' },
-          '&.MuiButton-colorWarning': { color: '#241400' },
+          '&.MuiButton-colorSecondary:hover': { backgroundColor: brandSecure.light },
         },
         outlined: {
-          borderColor: line.strong,
+          borderColor: hairline.faint,
           color: text.primary,
-          backgroundColor: alpha('#ffffff', 0.015),
-          '&:hover': {
-            borderColor: alpha(violet.light, 0.7),
-            backgroundColor: alpha(violet.main, 0.1),
-            transform: 'translateY(-1px)',
-          },
+          backgroundColor: surface[1],
+          '&:hover': { borderColor: hairline.strong, backgroundColor: surface[2] },
         },
-        text: { '&:hover': { backgroundColor: alpha(violet.main, 0.1) } },
-        sizeSmall: { paddingInline: 13, paddingBlock: 6, fontSize: '0.8rem', borderRadius: 9 },
-        sizeLarge: { paddingBlock: 12.5, fontSize: '0.98rem', borderRadius: 12 },
+        text: { '&:hover': { backgroundColor: alpha(lavender.main, 0.08) } },
+        sizeSmall: { paddingInline: 12, paddingBlock: 6, fontSize: '0.8rem', borderRadius: 8 },
+        sizeLarge: { paddingBlock: 10, fontSize: '0.98rem', borderRadius: 8 },
       },
     },
 
     MuiChip: {
       styleOverrides: {
         root: {
-          fontWeight: 600,
+          fontWeight: 500,
           letterSpacing: '0.01em',
-          borderRadius: 8,
+          borderRadius: 9999,
           height: 26,
-          border: `1px solid ${line.soft}`,
-          backgroundColor: alpha('#ffffff', 0.03),
+          border: `1px solid ${hairline.faint}`,
+          backgroundColor: surface[2],
+          color: text.secondary,
         },
         label: { paddingInline: 10 },
         outlined: { backgroundColor: 'transparent' },
@@ -263,31 +213,31 @@ export const theme = createTheme({
       },
     },
 
-    MuiDivider: { styleOverrides: { root: { borderColor: line.faint } } },
+    MuiDivider: { styleOverrides: { root: { borderColor: hairline.faint } } },
 
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          borderRadius: 10,
-          backgroundColor: alpha(ink[900], 0.55),
+          borderRadius: 8,
+          backgroundColor: surface[1],
           transition: 'border-color 140ms ease, box-shadow 140ms ease',
-          '& .MuiOutlinedInput-notchedOutline': { borderColor: line.soft },
-          '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: alpha(violet.light, 0.55) },
-          '&.Mui-focused': { boxShadow: `0 0 0 3px ${alpha(violet.main, 0.22)}` },
-          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: violet.main, borderWidth: 1 },
+          '& .MuiOutlinedInput-notchedOutline': { borderColor: hairline.faint },
+          '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: hairline.strong },
+          '&.Mui-focused': { boxShadow: `0 0 0 2px ${alpha(lavender.dark, 0.5)}` },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: lavender.main, borderWidth: 1 },
         },
         input: { fontFamily: "'Inter', sans-serif", '&::placeholder': { color: text.disabled, opacity: 1 } },
       },
     },
-    MuiInputLabel: { styleOverrides: { root: { '&.Mui-focused': { color: violet.light } } } },
+    MuiInputLabel: { styleOverrides: { root: { '&.Mui-focused': { color: lavender.light } } } },
 
     MuiAlert: {
       styleOverrides: {
         root: {
-          borderRadius: 11,
-          border: `1px solid ${line.soft}`,
+          borderRadius: 8,
+          border: `1px solid ${hairline.faint}`,
           alignItems: 'center',
-          backgroundColor: ink[750],
+          backgroundColor: surface[2],
         },
         icon: { opacity: 0.9 },
         message: { fontSize: '0.86rem' },
@@ -297,22 +247,22 @@ export const theme = createTheme({
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          backgroundColor: ink[700],
-          border: `1px solid ${line.strong}`,
+          backgroundColor: surface[3],
+          border: `1px solid ${hairline.strong}`,
           fontSize: '0.74rem',
           fontWeight: 500,
           padding: '6px 10px',
-          borderRadius: 8,
-          boxShadow: cardShadow,
+          borderRadius: 6,
+          boxShadow: 'none',
         },
-        arrow: { color: ink[700] },
+        arrow: { color: surface[3] },
       },
     },
 
     MuiLinearProgress: {
       styleOverrides: {
-        root: { borderRadius: 999, backgroundColor: alpha(violet.light, 0.12), height: 3 },
-        bar: { borderRadius: 999, background: `linear-gradient(90deg, ${violet.main}, ${teal.main})` },
+        root: { borderRadius: 9999, backgroundColor: alpha(lavender.light, 0.14), height: 3 },
+        bar: { borderRadius: 9999, backgroundColor: lavender.main },
       },
     },
 
@@ -322,7 +272,7 @@ export const theme = createTheme({
       },
     },
 
-    MuiSnackbarContent: { styleOverrides: { root: { borderRadius: 11 } } },
+    MuiSnackbarContent: { styleOverrides: { root: { borderRadius: 8 } } },
   },
 });
 

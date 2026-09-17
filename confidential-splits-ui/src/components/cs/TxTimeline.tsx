@@ -56,10 +56,10 @@ export const TxTimeline: React.FC<TxTimelineProps> = ({ stage, error }) => {
     <Box
       sx={{
         p: { xs: 2.25, md: 2.75 },
-        borderRadius: 3.5,
+        borderRadius: '12px',
         border: '1px solid',
         borderColor: failed ? 'error.main' : done ? 'success.main' : 'primary.main',
-        bgcolor: failed ? 'rgba(248,113,113,0.06)' : done ? 'rgba(52,211,153,0.05)' : 'rgba(139,92,246,0.05)',
+        bgcolor: failed ? 'rgba(248,113,113,0.06)' : done ? 'rgba(39,166,68,0.06)' : 'rgba(94,106,210,0.06)',
         animation: 'cs-rise 320ms ease both',
       }}
     >
@@ -128,7 +128,7 @@ export const TxTimeline: React.FC<TxTimelineProps> = ({ stage, error }) => {
                       inset: 0,
                       borderRadius: '50%',
                       bgcolor: dotColor,
-                      boxShadow: isActive ? '0 0 0 4px rgba(139,92,246,0.2)' : 'none',
+                      boxShadow: isActive ? '0 0 0 4px rgba(94,106,210,0.2)' : 'none',
                     }}
                   />
                   {isActive && (
@@ -150,7 +150,7 @@ export const TxTimeline: React.FC<TxTimelineProps> = ({ stage, error }) => {
                     height: 2,
                     borderRadius: 2,
                     mr: i === FLOW.length - 1 ? 0 : -1,
-                    background: isDone ? 'linear-gradient(90deg,#34d399,#2dd4bf)' : 'rgba(255,255,255,0.08)',
+                    backgroundColor: isDone ? '#27a644' : 'rgba(255,255,255,0.08)',
                   }}
                 />
               </Box>

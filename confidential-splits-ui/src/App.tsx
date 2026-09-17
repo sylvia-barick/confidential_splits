@@ -745,15 +745,7 @@ const App: React.FC = () => {
             >
               Split shared costs.
               <br />
-              <Box
-                component="span"
-                sx={{
-                  background: 'linear-gradient(90deg, #a78bfa 0%, #2dd4bf 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-              >
+              <Box component="span" sx={{ color: 'primary.light' }}>
                 Keep every balance private.
               </Box>
             </Typography>
@@ -841,7 +833,7 @@ const App: React.FC = () => {
                 kicker="Diagnostics"
                 index="01"
                 icon={<InsightsIcon />}
-                accent="#2dd4bf"
+                accent="#5e6ad2"
                 glow
               >
                 <Stack spacing={1.25}>
@@ -936,7 +928,7 @@ const App: React.FC = () => {
               >
                 {latestContractAddress ? (
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1.5 }}>
-                    <MonoTag value={latestContractAddress} truncate={14} color="#a78bfa" />
+                    <MonoTag value={latestContractAddress} truncate={14} color="#828fff" />
                     <Chip size="small" label={`${memberCount} / 4 members`} />
                     {ledgerState && (
                       <Chip
@@ -988,7 +980,7 @@ const App: React.FC = () => {
             {connectingToGroup && (
               <>
                 <Grid size={{ xs: 12, md: 7 }}>
-                  <Paper sx={{ p: 3.25, borderRadius: 3.5 }}>
+                  <Paper sx={{ p: 3.25, borderRadius: '12px' }}>
                     <Skeleton width={120} height={14} />
                     <Skeleton width="55%" height={26} sx={{ mt: 1 }} />
                     <Stack spacing={1.25} sx={{ mt: 2.5 }}>
@@ -999,7 +991,7 @@ const App: React.FC = () => {
                   </Paper>
                 </Grid>
                 <Grid size={{ xs: 12, md: 5 }}>
-                  <Paper sx={{ p: 3.25, borderRadius: 3.5, height: '100%' }}>
+                  <Paper sx={{ p: 3.25, borderRadius: '12px', height: '100%' }}>
                     <Skeleton width={120} height={14} />
                     <Skeleton variant="rounded" height={92} sx={{ mt: 2 }} />
                     <Skeleton variant="rounded" height={40} sx={{ mt: 2 }} />
@@ -1038,10 +1030,10 @@ const App: React.FC = () => {
                               alignItems: 'center',
                               gap: 1.5,
                               p: 1.25,
-                              borderRadius: 2.5,
+                              borderRadius: '10px',
                               border: '1px solid',
                               borderColor: isMe ? 'primary.main' : 'divider',
-                              bgcolor: isMe ? 'rgba(139,92,246,0.08)' : 'rgba(7,6,11,0.35)',
+                              bgcolor: isMe ? 'rgba(94,106,210,0.08)' : 'rgba(1,1,2,0.35)',
                               transition: 'border-color 160ms ease',
                             }}
                           >
@@ -1106,9 +1098,9 @@ const App: React.FC = () => {
                       sx={{
                         mt: 2.5,
                         p: 2,
-                        bgcolor: 'rgba(139,92,246,0.08)',
-                        borderRadius: 2.5,
-                        border: '1px solid rgba(167,139,250,0.2)',
+                        bgcolor: 'rgba(94,106,210,0.08)',
+                        borderRadius: '10px',
+                        border: '1px solid rgba(94,106,210,0.25)',
                       }}
                     >
                       <Typography variant="overline" sx={{ display: 'block', mb: 1, color: 'primary.light' }}>
@@ -1156,9 +1148,9 @@ const App: React.FC = () => {
                         sx={{
                           mt: 2,
                           p: 2,
-                          bgcolor: 'rgba(45,212,191,0.08)',
-                          borderRadius: 2.5,
-                          border: '1px solid rgba(45,212,191,0.25)',
+                          bgcolor: 'rgba(122,127,173,0.1)',
+                          borderRadius: '10px',
+                          border: '1px solid rgba(122,127,173,0.3)',
                         }}
                       >
                         <Typography variant="overline" sx={{ display: 'block', mb: 1, color: 'secondary.light' }}>
@@ -1183,7 +1175,7 @@ const App: React.FC = () => {
                     index="04"
                     subtitle="Computed locally — never transmitted"
                     icon={<ShieldIcon />}
-                    accent="#2dd4bf"
+                    accent="#7a7fad"
                     glow
                     sx={{ animationDelay: '120ms' }}
                   >
@@ -1192,12 +1184,12 @@ const App: React.FC = () => {
                         <Box
                           sx={{
                             p: 2.25,
-                            borderRadius: 3,
+                            borderRadius: '12px',
                             mb: 2,
                             position: 'relative',
                             overflow: 'hidden',
-                            background: 'linear-gradient(155deg, rgba(45,212,191,0.16), rgba(45,212,191,0.02))',
-                            border: '1px solid rgba(45,212,191,0.28)',
+                            bgcolor: 'rgba(122,127,173,0.08)',
+                            border: '1px solid rgba(122,127,173,0.3)',
                           }}
                         >
                           <Typography
@@ -1208,13 +1200,13 @@ const App: React.FC = () => {
                           </Typography>
                           <Typography
                             sx={{
-                              fontFamily: "'Space Grotesk', sans-serif",
-                              fontWeight: 700,
+                              fontFamily: "'Inter', sans-serif",
+                              fontWeight: 600,
                               fontSize: '2rem',
                               letterSpacing: '-0.02em',
                               fontVariantNumeric: 'tabular-nums',
                               mt: 0.25,
-                              color: netBalance >= 0n ? 'secondary.light' : 'error.light',
+                              color: netBalance >= 0n ? 'success.light' : 'error.light',
                             }}
                           >
                             {netBalance >= 0n ? '+' : '−'}
@@ -1337,7 +1329,7 @@ const App: React.FC = () => {
                                   borderRadius: 2.5,
                                   border: '1px solid',
                                   borderColor: 'divider',
-                                  bgcolor: 'rgba(7,6,11,0.35)',
+                                  bgcolor: 'rgba(1,1,2,0.35)',
                                 }}
                               >
                                 <Box sx={{ flexGrow: 1 }}>

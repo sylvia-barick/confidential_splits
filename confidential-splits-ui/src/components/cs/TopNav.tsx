@@ -42,7 +42,7 @@ const Pill: React.FC<React.PropsWithChildren<{ mono?: boolean }>> = ({ children,
       gap: 0.75,
       px: 1.1,
       py: 0.5,
-      borderRadius: 2,
+      borderRadius: '9999px',
       border: '1px solid',
       borderColor: 'divider',
       bgcolor: 'rgba(255,255,255,0.03)',
@@ -65,7 +65,7 @@ const Pill: React.FC<React.PropsWithChildren<{ mono?: boolean }>> = ({ children,
  */
 export const TopNav: React.FC<TopNavProps> = ({ network, walletConnected, walletLabel, roleLabel, infraHealthy }) => (
   <AppBar position="sticky" elevation={0}>
-    <Toolbar sx={{ maxWidth: 1200, mx: 'auto', width: '100%', gap: 1.5, py: 1.1, px: { xs: 2, sm: 3 }, minHeight: 64 }}>
+    <Toolbar sx={{ maxWidth: 1200, mx: 'auto', width: '100%', gap: 1.5, py: 1, px: { xs: 2, sm: 3 }, minHeight: 56 }}>
       <BrandMark compact />
       <Box sx={{ flexGrow: 1 }} />
 

@@ -46,22 +46,22 @@ export const MonoTag: React.FC<MonoTagProps> = ({ value, truncate = 8, copyable 
           gap: 0.75,
           px: 1,
           py: 0.4,
-          borderRadius: 1.75,
+          borderRadius: '8px',
           maxWidth: '100%',
           fontFamily: "'JetBrains Mono', ui-monospace, monospace",
           fontSize: '0.76rem',
           letterSpacing: '0.01em',
           color: copied ? 'success.light' : (color ?? 'text.secondary'),
-          bgcolor: 'rgba(7,6,11,0.55)',
+          bgcolor: 'rgba(1,1,2,0.55)',
           border: '1px solid',
           borderColor: copied ? 'success.main' : 'divider',
           cursor: copyable ? 'pointer' : 'default',
           transition: 'border-color 140ms ease, color 140ms ease, background-color 140ms ease',
           outline: 'none',
           '&:hover': copyable
-            ? { borderColor: 'primary.light', color: 'text.primary', bgcolor: 'rgba(139,92,246,0.08)' }
+            ? { borderColor: 'primary.light', color: 'text.primary', bgcolor: 'rgba(94,106,210,0.08)' }
             : undefined,
-          '&:focus-visible': { borderColor: 'primary.light', boxShadow: '0 0 0 3px rgba(139,92,246,0.25)' },
+          '&:focus-visible': { borderColor: 'primary.light', boxShadow: '0 0 0 3px rgba(94,106,210,0.25)' },
         }}
       >
         <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

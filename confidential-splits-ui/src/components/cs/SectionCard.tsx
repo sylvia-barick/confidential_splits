@@ -31,7 +31,7 @@ export const SectionCard: React.FC<SectionCardProps> = ({
   subtitle,
   icon,
   action,
-  accent = '#a78bfa',
+  accent = '#5e6ad2',
   index,
   kicker,
   glow = false,
@@ -50,22 +50,22 @@ export const SectionCard: React.FC<SectionCardProps> = ({
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        borderRadius: 3.5,
-        animation: 'cs-rise 520ms cubic-bezier(.2,.7,.2,1) both',
-        transition: 'transform 200ms cubic-bezier(.2,.7,.2,1), box-shadow 200ms ease, border-color 200ms ease',
+        borderRadius: '12px',
+        animation: 'cs-rise 420ms cubic-bezier(.2,.7,.2,1) both',
+        transition: 'border-color 180ms ease, box-shadow 180ms ease',
         '&:hover': {
-          transform: 'translateY(-3px)',
-          borderColor: `${accent}55`,
+          borderColor: '#34343a',
           boxShadow: csCardHoverShadow,
         },
-        // hairline accent along the top edge
+        // subtle white edge highlight along the top — Linear's "rendered
+        // pixel" cue for a lifted charcoal panel; never chromatic.
         '&::before': {
           content: '""',
           position: 'absolute',
           insetInline: 0,
           top: 0,
           height: 1,
-          background: `linear-gradient(90deg, ${accent}, transparent 55%)`,
+          background: 'rgba(255,255,255,0.08)',
         },
         ...sx,
       }}
@@ -77,8 +77,8 @@ export const SectionCard: React.FC<SectionCardProps> = ({
             position: 'absolute',
             inset: 0,
             pointerEvents: 'none',
-            opacity: 0.9,
-            background: `radial-gradient(420px circle at ${pos.x * 100}% ${pos.y * 100}%, ${accent}22, transparent 60%)`,
+            opacity: 0.7,
+            background: `radial-gradient(420px circle at ${pos.x * 100}% ${pos.y * 100}%, ${accent}14, transparent 60%)`,
             transition: 'background 120ms linear',
           }}
         />

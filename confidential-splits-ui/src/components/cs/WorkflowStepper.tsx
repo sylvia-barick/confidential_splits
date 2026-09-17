@@ -34,11 +34,10 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ activeStep }) 
       sx={{
         px: { xs: 2, md: 3.5 },
         py: { xs: 2.5, md: 3 },
-        borderRadius: 3.5,
+        borderRadius: '12px',
         border: '1px solid',
         borderColor: 'divider',
-        bgcolor: 'rgba(16,14,24,0.6)',
-        backdropFilter: 'blur(12px)',
+        bgcolor: 'background.paper',
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -75,9 +74,8 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ activeStep }) 
             top: 19,
             height: 2,
             borderRadius: 2,
-            background: 'linear-gradient(90deg, #8b5cf6, #2dd4bf)',
+            backgroundColor: 'primary.main',
             transition: 'width 500ms cubic-bezier(.2,.7,.2,1)',
-            boxShadow: '0 0 12px rgba(139,92,246,0.6)',
           }}
         />
 
@@ -108,14 +106,10 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ activeStep }) 
                   placeItems: 'center',
                   border: '1px solid',
                   transition: 'all 240ms cubic-bezier(.2,.7,.2,1)',
-                  color: done ? '#03211d' : active ? '#fff' : 'text.disabled',
-                  bgcolor: done ? 'secondary.main' : active ? 'primary.main' : 'rgba(16,14,24,0.9)',
-                  borderColor: done ? 'secondary.main' : active ? 'primary.main' : 'divider',
-                  boxShadow: active
-                    ? '0 0 0 5px rgba(139,92,246,0.18), 0 8px 20px -8px rgba(139,92,246,0.9)'
-                    : done
-                      ? '0 6px 16px -8px rgba(45,212,191,0.8)'
-                      : 'none',
+                  color: done ? '#ffffff' : active ? '#ffffff' : 'text.disabled',
+                  bgcolor: done ? 'success.main' : active ? 'primary.main' : 'background.paper',
+                  borderColor: done ? 'success.main' : active ? 'primary.main' : 'divider',
+                  boxShadow: active ? '0 0 0 4px rgba(94,106,210,0.16)' : 'none',
                 }}
               >
                 {done ? <CheckIcon sx={{ fontSize: '1.15rem' }} /> : <Icon sx={{ fontSize: '1.1rem' }} />}

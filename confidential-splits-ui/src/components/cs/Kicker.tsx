@@ -12,7 +12,7 @@ interface KickerProps {
  * Small editorial section label: a mono index, a tick, then an all-caps
  * tracked title. Gives each block a magazine-like anchor.
  */
-export const Kicker: React.FC<KickerProps> = ({ index, label, color = '#a78bfa' }) => (
+export const Kicker: React.FC<KickerProps> = ({ index, label, color = '#5e6ad2' }) => (
   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
     {index && (
       <Typography
@@ -27,8 +27,8 @@ export const Kicker: React.FC<KickerProps> = ({ index, label, color = '#a78bfa' 
       component="span"
       sx={{
         fontSize: '0.68rem',
-        fontWeight: 700,
-        letterSpacing: '0.22em',
+        fontWeight: 600,
+        letterSpacing: '0.08em',
         textTransform: 'uppercase',
         color: 'text.secondary',
       }}

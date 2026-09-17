@@ -30,12 +30,12 @@ export const InfraStatusRow: React.FC<InfraStatusRowProps> = ({ icon, label, det
         gap: 1.5,
         py: 1.25,
         px: 1.5,
-        borderRadius: 2.5,
+        borderRadius: '10px',
         border: '1px solid',
         borderColor: 'divider',
-        bgcolor: 'rgba(7,6,11,0.4)',
+        bgcolor: 'rgba(1,1,2,0.4)',
         transition: 'border-color 160ms ease, background-color 160ms ease',
-        '&:hover': { borderColor: 'rgba(255,255,255,0.14)', bgcolor: 'rgba(7,6,11,0.6)' },
+        '&:hover': { borderColor: '#34343a', bgcolor: 'rgba(1,1,2,0.6)' },
       }}
     >
       <Box

@@ -22,16 +22,9 @@ export const BrandMark: React.FC<BrandMarkProps> = ({ tagline = false, size = 34
         display: 'grid',
         placeItems: 'center',
         position: 'relative',
-        bgcolor: 'rgba(139,92,246,0.12)',
-        border: '1px solid rgba(167,139,250,0.35)',
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 6px 18px -10px rgba(139,92,246,0.9)',
+        bgcolor: 'rgba(94,106,210,0.12)',
+        border: '1px solid rgba(94,106,210,0.35)',
         overflow: 'hidden',
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(150deg, rgba(255,255,255,0.14), transparent 45%)',
-        },
       }}
     >
       <img
@@ -44,8 +37,8 @@ export const BrandMark: React.FC<BrandMarkProps> = ({ tagline = false, size = 34
       <Typography
         component="span"
         sx={{
-          fontFamily: "'Space Grotesk', sans-serif",
-          fontWeight: 700,
+          fontFamily: "'Inter', sans-serif",
+          fontWeight: 600,
           fontSize: compact ? '0.98rem' : '1.1rem',
           letterSpacing: '-0.02em',
           display: 'block',
