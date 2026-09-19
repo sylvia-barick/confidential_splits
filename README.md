@@ -5,7 +5,7 @@
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](./LICENSE)
 
 <p align="center">
-  <img src="homee1.png"  alt="Confidential Splits dashboard">
+  <img src="homeee1.png"  alt="Confidential Splits dashboard">
 </p>  
 
 **A privacy-preserving group expense tracker and settlement dApp built on the Midnight Network.** Confidential Splits lets a group split shared costs and settle debts while keeping each member's running balance, blinding salts, and ZK witness keys private — only cryptographic commitments and settlement metadata ever touch the public ledger.
@@ -92,11 +92,12 @@ It demonstrates a complete, non-trivial ZK application pattern — dynamic multi
 ### Dashboard
 
 <p align="center">
-  <img src="homee1.png" width="32%" alt="Confidential Splits dashboard">
-  <img src="homee2.png" width="32%" alt="Confidential Splits dashboard">
-  <img src="homee3.png" width="32%" alt="Confidential Splits dashboard">
-  <img src="homee4.png" width="32%" alt="Confidential Splits dashboard">
-  <img src="homee5.png" width="32%" alt="Confidential Splits dashboard">
+  <img src="homeee2.png" width="32%" alt="Confidential Splits dashboard">
+  <img src="homeee3.png" width="32%" alt="Confidential Splits dashboard">
+  <img src="homeee4.png" width="32%" alt="Confidential Splits dashboard">
+  <img src="homeee5.png" width="32%" alt="Confidential Splits dashboard">
+  <img src="homeee6.png" width="32%" alt="Confidential Splits dashboard">
+  <img src="homeee7.png" width="32%" alt="Confidential Splits dashboard">
 </p>
 
 ---
