@@ -87,6 +87,6 @@
       <div class="sub">Initialising Midnight providers…</div>
     </div>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script>`n      // Never leave a failed module/provider startup behind an infinite spinner.`n      window.setTimeout(() => {`n        const splash = document.getElementById("boot-splash");`n        if (splash && !document.body.classList.contains("app-ready")) {`n          const message = splash.querySelector(".sub");`n          if (message) message.textContent = "Startup is taking too long. Check the wallet connection and browser console.";`n          splash.querySelector(".ring")?.remove();`n        }`n      }, 15000);`n      window.addEventListener("error", (event) => {`n        const message = document.querySelector("#boot-splash .sub");`n        if (message && !document.body.classList.contains("app-ready")) {`n          message.textContent = `Startup error: ${event.message || "Unable to load the app"}`;`n        }`n      });`n    </script>`n    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

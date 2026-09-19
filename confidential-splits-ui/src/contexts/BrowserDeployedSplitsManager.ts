@@ -156,7 +156,10 @@ const initializeProviders = async (logger: Logger): Promise<SplitsProviders> => 
   // Prefer the local proof server (run via `docker compose -f confidential-splits-cli/proof-server-local.yml up -d`)
   // over whatever prover URI the wallet advertises: the hosted 1AM prover can reject this contract's
   // compiled circuits with a 500 on `/check` when its IR/proof-server version differs from ours.
-  const proverServerUri = (import.meta.env.VITE_PROOF_SERVER_URL as string | undefined) ?? config.proverServerUri!;
+  const configuredProverUri = import.meta.env.VITE_PROOF_SERVER_URL as string | undefined;
+  const isLocalProver = configuredProverUri?.includes('localhost') || configuredProverUri?.includes('127.0.0.1');
+  const isLocalApp = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const proverServerUri = configuredProverUri && (!isLocalProver || isLocalApp) ? configuredProverUri : config.proverServerUri!;
   logger.info({ proverServerUri }, 'Using proof server for Splits circuits');
 
   return {
@@ -175,7 +178,7 @@ const initializeProviders = async (logger: Logger): Promise<SplitsProviders> => 
         try {
           logger.info({ tx, ttl }, 'Balancing Splits transaction via wallet');
           const serializedTx = toHex(tx.serialize());
-          const received = await connectedAPI.balanceUnsealedTransaction(serializedTx);
+          const received = await withHostedWalletRetry(() => connectedAPI.balanceUnsealedTransaction(serializedTx));
           return Transaction.deserialize<SignatureEnabled, Proof, Binding>(
             'signature',
             'proof',

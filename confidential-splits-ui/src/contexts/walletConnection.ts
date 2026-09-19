@@ -25,7 +25,7 @@ export const getSharedWalletConnection = (connect: () => Promise<ConnectedAPI>):
 // "Request failed", even though the transaction is otherwise valid. Resubmitting the identical,
 // already-signed/proved FinalizedTransaction is safe (the ledger dedupes by tx hash), so retry once
 // before surfacing the error to the user.
-export const withHostedWalletRetry = async <T>(fn: () => Promise<T>, retries = 1, delayMs = 750): Promise<T> => {
+export const withHostedWalletRetry = async <T>(fn: () => Promise<T>, retries = 3, delayMs = 1000): Promise<T> => {
   try {
     return await fn();
   } catch (e) {
@@ -33,6 +33,6 @@ export const withHostedWalletRetry = async <T>(fn: () => Promise<T>, retries = 1
       throw e;
     }
     await new Promise((resolve) => setTimeout(resolve, delayMs));
-    return withHostedWalletRetry(fn, retries - 1, delayMs);
+    return withHostedWalletRetry(fn, retries - 1, Math.min(delayMs * 2, 4000));
   }
 };

@@ -229,7 +229,10 @@ const initializeProviders = async (logger: Logger): Promise<BBoardProviders> => 
   const inMemoryBBoardPrivateStateProvider = inMemoryPrivateStateProvider<string, BBoardPrivateState>();
   const shieldedAddresses = await connectedAPI.getShieldedAddresses();
   // Prefer the local proof server over the wallet-advertised prover URI (see BrowserDeployedSplitsManager).
-  const proverServerUri = (import.meta.env.VITE_PROOF_SERVER_URL as string | undefined) ?? config.proverServerUri!;
+  const configuredProverUri = import.meta.env.VITE_PROOF_SERVER_URL as string | undefined;
+  const isLocalProver = configuredProverUri?.includes('localhost') || configuredProverUri?.includes('127.0.0.1');
+  const isLocalApp = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const proverServerUri = configuredProverUri && (!isLocalProver || isLocalApp) ? configuredProverUri : config.proverServerUri!;
   logger.info({ proverServerUri }, 'Using proof server for BBoard circuits');
   return {
     privateStateProvider: inMemoryBBoardPrivateStateProvider,
