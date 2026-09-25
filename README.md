@@ -16,9 +16,14 @@
 | **Live demo** | [midlev4.vercel.app](https://midlev4.vercel.app/) |
 | **Demo video** | [Google Drive folder](https://drive.google.com/drive/folders/1yGLrMIRjEJaOyin215wK-29l6Ppci6SN?usp=sharing) — `confidential splits.mp4` |
 | **Preprod addresses verified** | **356** distinct wallet addresses with real, independently verifiable on-chain activity — see [§6](#6-50-real-midnight-preprod-addresses) | 
-| **Contract address** | `9a378876a47bc46b81d275c8e0c6ba40163009184565eb35414c7cc9d62467fd` — deployed on real Midnight **Preprod**, tx `3cffa9d76a160c27c7d6f8299fbe3d2a3d3cb7b47382107cfd9c8804b1b55f66`, block 2,119,943 — re-verified against the live indexer on 2026-09-12 (still resolves; see [§13](#13-implementation-status--commit-history)) |
-|**User Feedback Worksheet** | [User Feedbacks & Surveys](https://docs.google.com/spreadsheets/d/1BsMR8rPdG5nlihHdYONUzQYbPFtwB9ut0EiPQGeSeeQ/edit?usp=sharing)|
+| **Contract address** | `996237c3b685d5914db5d4fe47d0f8b9267ee7c04aa21f1137e8bfb3fb8c998f` |
 | **Network** | Midnight **Preprod** testnet |
+| **Deployment date** | 2026-09-25 (on-chain block timestamp) |
+| **Deployment time** | 11:33:06 UTC / 2026-09-25 17:03:06 IST (UTC+05:30) (on-chain block timestamp) |
+| **Deployment transaction** | `c18c7dc4cd87d55c61785c221c6f4ddf243faffe1ceec048eb92c132c9f03014` |
+| **Deployment block** | 2,703,052 |
+| **Verification reference** | [Midnight Preprod GraphQL indexer](https://indexer.preprod.midnight.network/api/v4/graphql) — transaction record returns this hash, block, timestamp, and contract address |
+|**User Feedback Worksheet** | [User Feedbacks & Surveys](https://docs.google.com/spreadsheets/d/1BsMR8rPdG5nlihHdYONUzQYbPFtwB9ut0EiPQGeSeeQ/edit?usp=sharing)|
 ---
 ### User Flow
 
